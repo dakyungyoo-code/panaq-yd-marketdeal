@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>파나크 영덕 바이 소노벨 실적 리뷰</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#f0f2f5;min-height:100vh;font-size:13px}
+.db-header{background:linear-gradient(135deg,#0d1e3a 0%,#1a3560 100%);padding:18px 28px 14px;display:flex;justify-content:space-between;align-items:flex-start}
+.db-header-left h1{font-size:18px;font-weight:600;color:#fff;margin-bottom:4px}
+.db-header-left p{font-size:12px;color:rgba(255,255,255,.55)}
+.db-header-right{text-align:right;font-size:11px;color:rgba(255,255,255,.5);line-height:1.8}
+.db-header-right span{color:rgba(255,255,255,.85)}
+.tab-bar{background:#162d52;display:flex;padding:0 28px;border-bottom:1px solid rgba(255,255,255,.1)}
+.tab-btn{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);background:none;border:none;padding:11px 18px 12px;cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;transition:color .15s}
+.tab-btn.active{color:#fff;border-bottom:2px solid #D4A843}
+.tab-btn:hover{color:rgba(255,255,255,.85)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.content{padding:24px 28px}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi-card{background:#fff;border-radius:10px;padding:18px 20px;border:0.5px solid rgba(0,0,0,.07)}
+.kpi-card.ay{border-top:3px solid #D4A843}
+.kpi-card.an{border-top:3px solid #1a3560}
+.kpi-card.at{border-top:3px solid #1D9E75}
+.kpi-card.ab{border-top:3px solid #378ADD}
+.k-label{font-size:11px;color:#888;margin-bottom:8px}
+.k-val{font-size:24px;font-weight:700;color:#0d1e3a;line-height:1.1}
+.k-unit{font-size:13px;font-weight:400;color:#0d1e3a}
+.k-sub{font-size:11px;color:#888;margin-top:6px}
+.k-sub .up{color:#1D9E75;font-weight:600}
+.k-sub .hl{color:#D4A843;font-weight:600}
+.chart-row{display:grid;grid-template-columns:1fr 300px;gap:14px;margin-bottom:20px}
+.panel{background:#fff;border-radius:10px;padding:20px;border:0.5px solid rgba(0,0,0,.07)}
+.panel-title{font-size:13px;font-weight:600;color:#0d1e3a;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.panel-title::before{content:'';width:3px;height:14px;background:#D4A843;border-radius:2px;display:inline-block}
+.legend-row{display:flex;gap:14px;margin-bottom:10px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:#666}
+.leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.donut-wrap{position:relative;width:160px;margin:0 auto}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.dc-val{font-size:22px;font-weight:700;color:#0d1e3a}
+.dc-label{font-size:10px;color:#888}
+.donut-legend{margin-top:14px}
+.dl{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid #f0f0f0;font-size:12px}
+.dl:last-child{border-bottom:none}
+.dl-left{display:flex;align-items:center;gap:7px;color:#555}
+.dl-sq{width:9px;height:9px;border-radius:2px}
+.dl-val{font-weight:600;color:#0d1e3a}
+table.detail{width:100%;border-collapse:collapse;font-size:12px}
+table.detail thead th{background:#0d1e3a;color:rgba(255,255,255,.85);font-weight:600;padding:10px 14px;text-align:right;white-space:nowrap}
+table.detail thead th:first-child{text-align:center}
+table.detail tbody td{padding:11px 14px;border-bottom:0.5px solid #eee;text-align:right;color:#333;white-space:nowrap}
+table.detail tbody td:first-child{text-align:center;color:#378ADD;font-weight:600}
+table.detail tbody tr.total td{background:#0d1e3a;color:#D4A843;font-weight:600}
+table.detail tbody tr:hover td{background:#f7f9fc}
+.up-green{color:#1D9E75;font-weight:600}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.bar-lbl{font-size:11px;color:#555;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:7px;background:#f0f2f5;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-pct{font-size:11px;color:#888;width:34px;text-align:right;flex-shrink:0}
+.bar-val{font-size:11px;color:#333;width:60px;text-align:right;font-weight:600;flex-shrink:0}
+.rn-pills{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
+.rn-pill{background:#fff;border-radius:10px;padding:14px 12px;text-align:center;border:0.5px solid rgba(0,0,0,.07)}
+.rp-val{font-size:20px;font-weight:700;color:#0d1e3a}
+.rp-label{font-size:10px;color:#888;margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="db-header">
+  <div class="db-header-left">
+    <h1>파나크 영덕 바이 소노벨 실적 리뷰</h1>
+    <p>PANAQ Yeoungdeok by SONO Belle · 쩡(혀니여니) 마켓딜 · 실시간 정리본</p>
+  </div>
+  <div class="db-header-right">
+    캠페인 ID : panaq_yd_marketdeal<br>
+    총 39개 지점 · 작성일 <span>2026.06.18</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="sw('overview',this)"><span class="dot" style="background:#D4A843"></span> 전체 실적</button>
+  <button class="tab-btn" onclick="sw('room',this)"><span class="dot" style="background:#1D9E75"></span> 객실별 실적</button>
+  <button class="tab-btn" onclick="sw('month',this)"><span class="dot" style="background:#378ADD"></span> 투숙월 / RN</button>
+  <button class="tab-btn" onclick="sw('user',this)">★ 구매 유저</button>
+</div>
+
+<div class="content">
+
+  <!-- 전체 실적 -->
+  <div id="tab-overview" class="tab-pane active">
+    <div class="kpi-row">
+      <div class="kpi-card ay">
+        <div class="k-label">총 GMV (예약 기준)</div>
+        <div class="k-val">2.66<span class="k-unit">억원</span></div>
+        <div class="k-sub">예약 기준 총 거래액</div>
+      </div>
+      <div class="kpi-card an">
+        <div class="k-label">총 매출 (확정)</div>
+        <div class="k-val">1.81<span class="k-unit">억원</span></div>
+        <div class="k-sub">확정 예약 기준 실매출</div>
+      </div>
+      <div class="kpi-card at">
+        <div class="k-label">평균 확정률 (RN)</div>
+        <div class="k-val">69.0<span class="k-unit">%</span></div>
+        <div class="k-sub"><span class="up">↑ RN 기준</span></div>
+      </div>
+      <div class="kpi-card ab">
+        <div class="k-label">CVR (전환율)</div>
+        <div class="k-val">14.83<span class="k-unit">%</span></div>
+        <div class="k-sub"><span class="hl">탐색 5,205 → 구매 772명</span></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="panel">
+        <div class="panel-title">월별 GMV · 매출 추이 (만원)</div>
+        <div class="legend-row">
+          <span class="leg"><span class="leg-sq" style="background:#1a3560"></span>GMV</span>
+          <span class="leg"><span class="leg-sq" style="background:#D4A843"></span>총매출</span>
+          <span class="leg"><span class="leg-sq" style="background:#378ADD"></span>CGMV</span>
+        </div>
+        <div style="position:relative;height:200px">
+          <canvas id="monthChart" role="img" aria-label="월별 GMV 추이">6월 5,893만 / 7월 12,663만 / 8월 4,190만 / 9월 3,825만</canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">예약 vs 확정 비중</div>
+        <div class="donut-wrap">
+          <div style="position:relative;height:160px">
+            <canvas id="donutChart" role="img" aria-label="확정 706건 미확정 318건">확정 706건, 미확정 318건</canvas>
+          </div>
+          <div class="donut-center"><div class="dc-val">69%</div><div class="dc-label">확정률</div></div>
+        </div>
+        <div class="donut-legend">
+          <div class="dl"><div class="dl-left"><span class="dl-sq" style="background:#1a3560"></span>확정 예약</div><div class="dl-val">706건</div></div>
+          <div class="dl"><div class="dl-left"><span class="dl-sq" style="background:#D4A843"></span>미확정</div><div class="dl-val">318건</div></div>
+          <div class="dl"><div class="dl-left"><span class="dl-sq" style="background:#e8e8e8"></span>전체 예약</div><div class="dl-val">1,024건</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">월별 실적 상세</div>
+      <div style="overflow-x:auto">
+        <table class="detail">
+          <thead><tr>
+            <th>투숙월</th><th>예약수</th><th>확정예약</th><th>확정률</th>
+            <th>GMV (원)</th><th>CGMV (원)</th><th>RN</th><th>확정 RN</th><th>ADR-GMV</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Jun-26</td><td>239</td><td>—</td><td>—</td><td>58,933천</td><td>44,385천</td><td>83</td><td>—</td><td>—</td></tr>
+            <tr><td>Jul-26</td><td>512</td><td>—</td><td>—</td><td>126,630천</td><td>83,566천</td><td>131</td><td>—</td><td>—</td></tr>
+            <tr><td>Aug-26</td><td>121</td><td>—</td><td>—</td><td>41,904천</td><td>28,775천</td><td>87</td><td>—</td><td>—</td></tr>
+            <tr><td>Sep-26</td><td>152</td><td>—</td><td>—</td><td>38,248천</td><td>24,344천</td><td>62</td><td>—</td><td>—</td></tr>
+            <tr class="total"><td>합계</td><td>1,024</td><td>706</td><td>69.0%</td><td>265,715천</td><td>181,070천</td><td>1,153</td><td>796</td><td>230,455</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 객실별 실적 -->
+  <div id="tab-room" class="tab-pane">
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">객실 유형별 GMV 비중</div>
+        <div id="room-bars"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">객실 유형별 GMV (만원)</div>
+        <div style="position:relative;height:320px">
+          <canvas id="roomChart" role="img" aria-label="객실별 GMV 차트">파셜오션 5,916만으로 1위</canvas>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">객실별 실적 상세</div>
+      <div style="overflow-x:auto">
+        <table class="detail">
+          <thead><tr>
+            <th>객실 유형</th><th>예약수</th><th>GMV</th><th>GMV 비중</th><th>확정 CGMV</th><th>RN</th><th>확정 RN</th><th>ADR</th>
+          </tr></thead>
+          <tbody id="room-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 투숙월 / RN -->
+  <div id="tab-month" class="tab-pane">
+    <div class="rn-pills">
+      <div class="rn-pill"><div class="rp-val">88.0%</div><div class="rp-label">1박 비중</div></div>
+      <div class="rn-pill"><div class="rp-val">901건</div><div class="rp-label">1박 예약</div></div>
+      <div class="rn-pill"><div class="rp-val">11.4%</div><div class="rp-label">2박 비중</div></div>
+      <div class="rn-pill"><div class="rp-val">117건</div><div class="rp-label">2박 예약</div></div>
+      <div class="rn-pill"><div class="rp-val">0.6%</div><div class="rp-label">3박 비중</div></div>
+      <div class="rn-pill"><div class="rp-val">6건</div><div class="rp-label">3박 예약</div></div>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">투숙월별 GMV vs CGMV (만원)</div>
+        <div class="legend-row">
+          <span class="leg"><span class="leg-sq" style="background:#1a3560"></span>GMV</span>
+          <span class="leg"><span class="leg-sq" style="background:#378ADD"></span>CGMV</span>
+        </div>
+        <div style="position:relative;height:220px">
+          <canvas id="monthChart2" role="img" aria-label="투숙월별 GMV CGMV">7월 GMV 12,663만 최고</canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">투숙인원 유형별 예약 비중</div>
+        <div id="person-bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 구매 유저 -->
+  <div id="tab-user" class="tab-pane">
+    <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="kpi-card ay">
+        <div class="k-label">총 탐색 유저</div>
+        <div class="k-val">5,205<span class="k-unit">명</span></div>
+      </div>
+      <div class="kpi-card an">
+        <div class="k-label">구매 유저</div>
+        <div class="k-val">772<span class="k-unit">명</span></div>
+      </div>
+      <div class="kpi-card at">
+        <div class="k-label">전환율 (CVR)</div>
+        <div class="k-val">14.83<span class="k-unit">%</span></div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">연령대별 구매자 (미입력 제외)</div>
+        <div id="age-bars"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">동행 유형별 구매자 (미입력 제외)</div>
+        <div id="pur-bars"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">지역별 구매자 상위 (명)</div>
+      <div style="position:relative;height:240px">
+        <canvas id="sidoChart" role="img" aria-label="지역별 구매자">대구 138명으로 1위</canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function sw(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+const NAVY='#1a3560',GOLD='#D4A843',BLUE='#378ADD',TEAL='#1D9E75',CORAL='#D85A30',PURPLE='#7F77DD',GRAY='#aaa';
+
+new Chart(document.getElementById('monthChart'),{
+  type:'bar',
+  data:{labels:['Jun-26','Jul-26','Aug-26','Sep-26'],
+    datasets:[
+      {label:'GMV',data:[5893,12663,4190,3825],backgroundColor:NAVY,borderRadius:4},
+      {label:'총매출',data:[1454,4306,1312,1391],backgroundColor:GOLD,borderRadius:4},
+      {label:'CGMV',data:[4439,8357,2878,2434],backgroundColor:BLUE,borderRadius:4}
+    ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{font:{size:11}}},y:{ticks:{callback:v=>v+'만',font:{size:11}},grid:{color:'rgba(0,0,0,.06)'}}}}
+});
+
+new Chart(document.getElementById('donutChart'),{
+  type:'doughnut',
+  data:{labels:['확정','미확정'],datasets:[{data:[706,318],backgroundColor:[NAVY,GOLD],borderWidth:0,cutout:'72%'}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}
+});
+
+const roomData=[
+  ['슈페리어 파셜오션',284,59158000,22.3,43922000,311,231,190219],
+  ['슈페리어 오션',182,42992000,16.2,29830000,202,141,212832],
+  ['슈페리어 오션 패밀리',136,34848000,13.1,25448000,159,116,219170],
+  ['풀빌라 파셜오션',46,29800000,11.2,18905000,57,36,522807],
+  ['슈페리어 마운틴뷰 패밀리',108,24676000,9.3,15980000,122,79,202262],
+  ['스튜디오 스위트',67,21783000,8.2,13932000,75,48,290440],
+  ['슈페리어 오션 트리플',69,16378000,6.2,11936000,77,56,212701],
+  ['슈페리어 마운틴뷰 트리플',65,13502000,5.1,7574000,69,39,195681],
+  ['디럭스 마운틴',28,8500000,3.2,6030000,36,26,236111],
+  ['파밀리에 스위트',23,7692000,2.9,4557000,27,16,284889],
+  ['파나크 스위트',15,5831000,2.2,2401000,17,7,343000],
+  ['풀빌라 오션',1,555000,0.2,555000,1,1,555000],
+];
+const rColors=[NAVY,BLUE,TEAL,CORAL,GOLD,PURPLE,'#5DCAA5','#85B7EB','#AF9EC2','#F0997B',GRAY,'#ccc'];
+
+const rmBars=document.getElementById('room-bars');
+roomData.forEach((d,i)=>{
+  rmBars.innerHTML+=`<div class="bar-row"><span class="bar-lbl">${d[0]}</span><div class="bar-track"><div class="bar-fill" style="width:${(d[3]/22.3*100).toFixed(1)}%;background:${rColors[i]}"></div></div><span class="bar-pct">${d[3]}%</span><span class="bar-val">${Math.round(d[2]/10000)}만</span></div>`;
+});
+
+const rmTbody=document.getElementById('room-tbody');
+roomData.forEach(d=>{
+  rmTbody.innerHTML+=`<tr><td>${d[0]}</td><td>${d[1].toLocaleString()}</td><td>${Math.round(d[2]/1000).toLocaleString()}천</td><td>${d[3]}%</td><td>${Math.round(d[4]/1000).toLocaleString()}천</td><td>${d[5]}</td><td>${d[6]}</td><td>${d[7].toLocaleString()}</td></tr>`;
+});
+rmTbody.innerHTML+=`<tr class="total"><td>합계</td><td>1,024</td><td>265,715천</td><td>100%</td><td>181,070천</td><td>1,153</td><td>796</td><td>230,455</td></tr>`;
+
+new Chart(document.getElementById('roomChart'),{
+  type:'bar',
+  data:{labels:roomData.map(d=>d[0]),datasets:[{data:roomData.map(d=>Math.round(d[2]/10000)),backgroundColor:rColors,borderRadius:4}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{callback:v=>v+'만',font:{size:11}},grid:{color:'rgba(0,0,0,.06)'}},y:{ticks:{font:{size:10}}}}}
+});
+
+new Chart(document.getElementById('monthChart2'),{
+  type:'bar',
+  data:{labels:['Jun-26','Jul-26','Aug-26','Sep-26'],
+    datasets:[
+      {label:'GMV',data:[5893,12663,4190,3825],backgroundColor:NAVY,borderRadius:4},
+      {label:'CGMV',data:[4439,8357,2878,2434],backgroundColor:BLUE,borderRadius:4}
+    ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{font:{size:11}}},y:{ticks:{callback:v=>v+'만',font:{size:11}},grid:{color:'rgba(0,0,0,.06)'}}}}
+});
+
+const personBars=document.getElementById('person-bars');
+[['성인 2인',45.1,NAVY],['성인 2인+아동1',20.1,BLUE],['성인 2인+아동2',17.1,TEAL],['성인 3인',3.4,GOLD],['성인 4인',3.4,CORAL],['기타',10.9,GRAY]].forEach(d=>{
+  personBars.innerHTML+=`<div class="bar-row"><span class="bar-lbl">${d[0]}</span><div class="bar-track"><div class="bar-fill" style="width:${(d[1]/45.1*100).toFixed(1)}%;background:${d[2]}"></div></div><span class="bar-pct">${d[1]}%</span></div>`;
+});
+
+const ageBars=document.getElementById('age-bars');
+[['36~45',36.9],[' 46~55',26.1],['26~35',17.8],['56~',16.6],['~25',2.5]].forEach((d,i)=>{
+  ageBars.innerHTML+=`<div class="bar-row"><span class="bar-lbl">${d[0]}</span><div class="bar-track"><div class="bar-fill" style="width:${(d[1]/36.9*100).toFixed(1)}%;background:${[NAVY,BLUE,TEAL,GOLD,CORAL][i]}"></div></div><span class="bar-pct">${d[1]}%</span></div>`;
+});
+
+const purBars=document.getElementById('pur-bars');
+[['자녀동반',48.1],['가족/부부',28.1],['커플/연인',11.8],['부모님',8.5],['친구',3.0],['혼자',0.5]].forEach((d,i)=>{
+  purBars.innerHTML+=`<div class="bar-row"><span class="bar-lbl">${d[0]}</span><div class="bar-track"><div class="bar-fill" style="width:${(d[1]/48.1*100).toFixed(1)}%;background:${[NAVY,BLUE,TEAL,GOLD,CORAL,GRAY][i]}"></div></div><span class="bar-pct">${d[1]}%</span></div>`;
+});
+
+new Chart(document.getElementById('sidoChart'),{
+  type:'bar',
+  data:{labels:['대구','경상북도','경기도','부산','충청북도','경상남도','대전','울산','서울','기타'],
+    datasets:[{data:[138,120,84,74,59,49,48,44,38,63],backgroundColor:NAVY,borderRadius:4}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{font:{size:11},autoSkip:false}},y:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.06)'}}}}
+});
+</script>
+</body>
+</html>
